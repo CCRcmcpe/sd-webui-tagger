@@ -4,7 +4,12 @@ from typing import List, Dict
 from pathlib import Path
 
 from modules import shared, scripts
-from preload import default_ddp_path
+
+from modules.shared import models_path
+
+default_ddp_path = Path(models_path, 'deepdanbooru')
+default_onnx_path = Path(models_path, 'TaggerOnnx')
+
 from tagger.preset import Preset
 from tagger.interrogator import Interrogator, DeepDanbooruInterrogator, WaifuDiffusionInterrogator, MLDanbooruInterrogator
 
@@ -49,10 +54,15 @@ interrogators: Dict[str, Interrogator] = {
 
 def refresh_interrogators():
     # load deepdanbooru project
-    os.makedirs(
-        getattr(shared.cmd_opts, 'deepdanbooru_projects_path', default_ddp_path),
-        exist_ok=True
-    )
+    
+    ddp_path = shared.cmd_opts.deepdanbooru_projects_path
+    if ddp_path is None:
+        ddp_path = default_ddp_path
+    onnx_path = shared.cmd_opts.onnxtagger_path
+    if onnx_path is None:
+        onnx_path = default_onnx_path
+    os.makedirs(ddp_path, exist_ok=True)
+    os.makedirs(onnx_path, exist_ok=True)
 
     for path in os.scandir(shared.cmd_opts.deepdanbooru_projects_path):
         if not path.is_dir():
